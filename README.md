@@ -3,7 +3,7 @@
 </p>
 
 <h1 align="center">你好，我是 DITF16 👋</h1>
-<h3 align="center">✨ 一位正在为爱发电，梦想创造AI老婆的炼丹术士 ✨</h3>
+<h3 align="center">✨ 一位正在为爱发电，梦想创造AI老婆的技术宅 ✨</h3>
 
 <p align="center">
   <img src="https://github.com/DITF16/DITF16/blob/main/assets/pink_waves.svg" alt="divider" style="width:100%;">
