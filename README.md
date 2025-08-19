@@ -26,7 +26,7 @@
       </ul>
       <p align="center">
         <a href="#">
-          <img src="https://img.shields.io/badge/明日方舟(官服)-Darling%235543-blue?style=for-the-badge&logo=arknights&logoColor=white" alt="Arknights ID">
+          <img src="https://img.shields.io/badge/明日方舟(官服)-Darling%235543-blue?style=flat-square&logo=arknights&logoColor=white" alt="Arknights ID">
         </a>
       </p>
       <p align="center">
