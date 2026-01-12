@@ -1,11 +1,9 @@
-name: Generate Snake
+name: Generate Snake & Stats
 
 on:
-  # 每天自动运行一次 (UTC时间 0点，北京时间早上8点)
   schedule:
-    - cron: "0 0 * * *" 
-  # 允许手动运行
-  workflow_dispatch:
+    - cron: "0 0 * * *"  # 每天运行一次
+  workflow_dispatch:      # 允许手动运行
 
 permissions: 
   contents: write
@@ -17,20 +15,28 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Create dist directory
+        run: mkdir -p dist
+
+      # 1. 生成贪吃蛇
       - name: Generate Snake
         uses: Platane/snk@v3
         with:
-          # 你的GitHub用户名
           github_user_name: DITF16
-          # 生成的图片保存路径
           outputs: |
             dist/github-contribution-grid-snake.svg
             dist/github-contribution-grid-snake-dark.svg?palette=github-dark
 
+      # 2. 下载战斗数据卡片 (这里就是新增的魔法！)
+      # 我们让机器人用 curl 命令把 Vercel 的图下载并保存为 github-stats.svg
+      - name: Download GitHub Stats
+        run: |
+          curl -L -o dist/github-stats.svg "https://github-readme-stats.vercel.app/api?username=DITF16&show_icons=true&theme=tokyonight&hide_border=true&bg_color=0d1117&title_color=F75C7E&icon_color=4facfe"
+
+      # 3. 将 dist 目录下的所有图片推送到 output 分支
       - name: Push to GitHub
         uses: crazy-max/ghaction-github-pages@v3.1.0
         with:
-          # 将生成的文件推送到 output 分支
           target_branch: output
           build_dir: dist
         env:
