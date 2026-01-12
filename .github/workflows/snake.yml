@@ -12,13 +12,11 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      # ✅ 关键修复步骤：先由 Runner 手动创建 dist 目录
-      # 这样目录的所有者是当前用户，而不是 Docker 的 root 用户
-      # 后续的搬运操作（cp）就不会报 Permission denied 了
+      # 1. 先创建 dist 目录 (所有权归 Runner，解决权限问题)
       - name: Create dist directory
         run: mkdir -p dist
 
-      # 1. 生成贪吃蛇
+      # 2. 生成贪吃蛇
       - name: Generate Snake
         uses: Platane/snk@v3
         with:
@@ -27,34 +25,44 @@ jobs:
             dist/github-contribution-grid-snake.svg
             dist/github-contribution-grid-snake-dark.svg?palette=github-dark
 
-      # 2. 生成 3D 霓虹城市 (env 配置法)
+      # 3. 生成 3D 霓虹城市
       - name: Generate 3D Contribution Profile
         uses: yoshi389111/github-profile-3d-contrib@0.7.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           USERNAME: ${{ github.repository_owner }}
 
-      # 3. 生成语言统计卡片 (生成到临时文件夹)
+      # 4. 生成语言统计卡片 (关键修复步骤！)
       - name: Generate Summary Cards
         uses: vn7n24fzkq/github-profile-summary-cards@release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # 👇👇👇 关键修改：禁止它自动提交！只生成文件就好 👇👇👇
+          AUTO_PUSH: false
         with:
           USERNAME: ${{ github.repository_owner }}
 
-      # 4. 搬运所有图片到 dist 目录
-      # 因为 dist 是我们自己创建的，所以现在有权限写入了！
+      # 5. 搬运所有图片到 dist 目录
       - name: Move images to dist
         run: |
-          # 搬运 3D 城市图
-          cp -r profile-3d-contrib/* dist/
+          # 搬运 3D 城市图 (检查源文件夹是否存在)
+          if [ -d "profile-3d-contrib" ]; then
+            cp -r profile-3d-contrib/* dist/
+            echo "✅ 3D 城市图搬运成功"
+          else
+            echo "⚠️ 未找到 3D 城市图文件夹"
+          fi
           
           # 搬运语言统计图 (2077主题)
-          cp profile-summary-card-output/2077/2-most-commit-language.svg dist/language-stats.svg
-          
-          echo "✅ 所有图片搬运完毕，权限检查通过！"
+          # 插件即使不提交，也会在本地生成 profile-summary-card-output 文件夹
+          if [ -f "profile-summary-card-output/2077/2-most-commit-language.svg" ]; then
+            cp profile-summary-card-output/2077/2-most-commit-language.svg dist/language-stats.svg
+            echo "✅ 语言统计图搬运成功"
+          else
+            echo "⚠️ 未找到语言统计图，可能是生成失败"
+          fi
 
-      # 5. 推送到 output 分支
+      # 6. 统一推送到 output 分支
       - name: Push to GitHub
         uses: crazy-max/ghaction-github-pages@v3.1.0
         with:
