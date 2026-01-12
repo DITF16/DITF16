@@ -15,11 +15,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      # 1. 创建存放图片的目录
       - name: Create dist directory
         run: mkdir -p dist
 
-      # 2. 生成贪吃蛇 (这个通常没问题，直接输出到 dist)
+      # 1. 生成贪吃蛇
       - name: Generate Snake
         uses: Platane/snk@v3
         with:
@@ -28,22 +27,19 @@ jobs:
             dist/github-contribution-grid-snake.svg
             dist/github-contribution-grid-snake-dark.svg?palette=github-dark
 
-      # 3. 生成战斗数据 (修改策略：先生成在根目录)
+      # 2. 生成战斗数据 (修复版：去掉了错误的 theme 参数)
       - name: Generate GitHub Metrics
         uses: lowlighter/metrics@latest
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          
-          # ⚠️ 修改点：去掉路径前缀，直接生成在根目录，防止路径错误
-          filename: github-stats.svg
-          
-          base: header, repositories
-          theme: tokyonight
+          user: DITF16              # 明确指定用户名
+          filename: github-stats.svg # 直接生成在根目录
+          base: header, repositories # 只展示头部和仓库数据
+          template: classic          # 使用经典模板
           config_timezone: Asia/Shanghai
-          output_action: none
+          output_action: none        # 不让它自己提交，我们手动提交
 
-      # 4. 关键步骤：把生成的战斗数据搬运到 dist 目录
-      # 顺便检查一下文件到底生成了没，如果没有会打印错误
+      # 3. 搬运文件
       - name: Move Metrics to dist
         run: |
           if [ -f "github-stats.svg" ]; then
@@ -51,11 +47,11 @@ jobs:
             echo "✅ 成功移动 github-stats.svg 到 dist 目录"
           else
             echo "❌ 严重错误: github-stats.svg 没有生成！"
-            ls -R  # 列出当前所有文件帮我们找原因
+            ls -R 
             exit 1
           fi
 
-      # 5. 推送 dist 目录下的所有文件
+      # 4. 推送文件
       - name: Push to GitHub
         uses: crazy-max/ghaction-github-pages@v3.1.0
         with:
