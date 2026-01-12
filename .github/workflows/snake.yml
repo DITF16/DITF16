@@ -12,7 +12,11 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      # 1. 生成贪吃蛇 (这个用 with，没问题)
+      # ✅ 【新增步骤】先创建 dist 目录，确保当前用户拥有写入权限
+      - name: Create dist directory
+        run: mkdir -p dist
+
+      # 1. 生成贪吃蛇
       - name: Generate Snake
         uses: Platane/snk@v3
         with:
@@ -21,19 +25,17 @@ jobs:
             dist/github-contribution-grid-snake.svg
             dist/github-contribution-grid-snake-dark.svg?palette=github-dark
 
-      # 2. 生成 3D 霓虹城市 (修正点：改成 env 写法)
+      # 2. 生成 3D 霓虹城市
       - name: Generate 3D Contribution Profile
         uses: yoshi389111/github-profile-3d-contrib@0.7.1
         env:
-          # 👇 这里的 GITHUB_TOKEN 必须写在 env 下面！
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           USERNAME: ${{ github.repository_owner }}
 
       # 3. 搬运文件
       - name: Move 3D images to dist
+        # 这里的 mkdir -p dist 其实可以保留，但因为上面已经创建了，这里主要是执行 cp
         run: |
-          mkdir -p dist
-          # 3D插件生成的图片在 profile-3d-contrib 文件夹里，我们要搬出来
           cp -r profile-3d-contrib/* dist/
           echo "✅ 3D 城市生成完毕！"
 
