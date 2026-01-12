@@ -22,36 +22,44 @@ jobs:
       - name: Generate Snake
         uses: Platane/snk@v3
         with:
-          github_user_name: DITF16
+          github_user_name: ${{ github.repository_owner }}
           outputs: |
             dist/github-contribution-grid-snake.svg
             dist/github-contribution-grid-snake-dark.svg?palette=github-dark
 
-      # 2. 生成战斗数据 (修复版：去掉了错误的 theme 参数)
+      # 2. 生成战斗数据 (强力模式)
       - name: Generate GitHub Metrics
         uses: lowlighter/metrics@latest
         with:
+          # 必填项
           token: ${{ secrets.GITHUB_TOKEN }}
-          user: DITF16              # 明确指定用户名
-          filename: github-stats.svg # 直接生成在根目录
-          base: header, repositories # 只展示头部和仓库数据
-          template: classic          # 使用经典模板
+          
+          # 直接输出到 dist 目录，不搞搬运了
+          filename: dist/github-stats.svg
+          
+          # 基础配置
+          base: header, repositories
+          template: classic
           config_timezone: Asia/Shanghai
-          output_action: none        # 不让它自己提交，我们手动提交
+          
+          # 关键配置：不让它自己提交，但强制验证文件完整性
+          output_action: none
+          verify: yes
+          debug: yes
 
-      # 3. 搬运文件
-      - name: Move Metrics to dist
+      # 3. 检查文件是否存在 (这次应该能看到了)
+      - name: Check files
         run: |
-          if [ -f "github-stats.svg" ]; then
-            mv github-stats.svg dist/
-            echo "✅ 成功移动 github-stats.svg 到 dist 目录"
-          else
-            echo "❌ 严重错误: github-stats.svg 没有生成！"
-            ls -R 
+          echo "Listing dist directory:"
+          ls -l dist/
+          if [ ! -f "dist/github-stats.svg" ]; then
+            echo "❌ 依然失败: dist/github-stats.svg 不存在"
             exit 1
+          else
+            echo "✅ 成功: 文件已生成！"
           fi
 
-      # 4. 推送文件
+      # 4. 推送 dist 目录下的所有文件
       - name: Push to GitHub
         uses: crazy-max/ghaction-github-pages@v3.1.0
         with:
