@@ -1,21 +1,18 @@
-name: Generate Snake & Stats
+name: Generate 3D City & Snake
 
 on:
   schedule:
-    - cron: "0 0 * * *"
+    - cron: "0 0 * * *" # 每天运行
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    name: Generate 3D Contrib & Snake
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-      - name: Create dist directory
-        run: mkdir -p dist
-
-      # 1. 生成贪吃蛇
+      # 1. 生成贪吃蛇 (你原来的那个，保留它)
       - name: Generate Snake
         uses: Platane/snk@v3
         with:
@@ -24,39 +21,23 @@ jobs:
             dist/github-contribution-grid-snake.svg
             dist/github-contribution-grid-snake-dark.svg?palette=github-dark
 
-      # 2. 生成战斗数据 (修正点：路径改回根目录)
-      - name: Generate GitHub Metrics
-        uses: lowlighter/metrics@latest
+      # 2. 生成 3D 霓虹城市 (新装备！)
+      # 不需要任何特殊 Token，直接用系统自带的
+      - name: Generate 3D Contribution Profile
+        uses: yoshi389111/github-profile-3d-contrib@0.7.1
         with:
-          # 必须使用你在 Secrets 里配好的万能钥匙
-          token: ${{ secrets.METRICS_TOKEN }}
-          
-          # 👇👇👇 关键修改：去掉 dist/ 前缀！直接生成在当前目录 👇👇👇
-          filename: github-stats.svg
-          
-          user: DITF16
-          base: header, repositories
-          template: classic
-          config_timezone: Asia/Shanghai
-          output_action: none
-          verify: no
-          debug: yes
+          USERNAME: ${{ github.repository_owner }}
+          SETTING_JSON: conf/github-profile-3d-contrib.json # 使用默认配置
 
-      # 3. 手动搬运 (我们自己动手，丰衣足食)
-      - name: Move to dist
+      # 3. 搬运文件到 dist 目录 (方便统一管理)
+      - name: Move 3D images to dist
         run: |
-          echo "正在检查根目录文件..."
-          ls -l github-stats.svg || echo "⚠️ 根目录也没找到文件"
-          
-          if [ -f "github-stats.svg" ]; then
-            mv github-stats.svg dist/
-            echo "✅ 成功！文件已生成并移动到 dist 目录！"
-          else
-            echo "❌ 依然失败。请检查 Token 是否包含换行符或空格。"
-            exit 1
-          fi
+          mkdir -p dist
+          # 3D插件默认生成在 profile-3d-contrib 文件夹里，我们把它搬出来
+          cp -r profile-3d-contrib/* dist/
+          echo "✅ 3D 城市生成完毕！"
 
-      # 4. 推送
+      # 4. 推送到 output 分支
       - name: Push to GitHub
         uses: crazy-max/ghaction-github-pages@v3.1.0
         with:
