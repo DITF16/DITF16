@@ -15,7 +15,7 @@ jobs:
       - name: Create dist directory
         run: mkdir -p dist
 
-      # 1. 生成贪吃蛇 (蛇不需要特殊权限，用默认的就行)
+      # 1. 生成贪吃蛇
       - name: Generate Snake
         uses: Platane/snk@v3
         with:
@@ -24,35 +24,35 @@ jobs:
             dist/github-contribution-grid-snake.svg
             dist/github-contribution-grid-snake-dark.svg?palette=github-dark
 
-      # 2. 生成战斗数据 (使用 METRICS_TOKEN)
+      # 2. 生成战斗数据 (修正点：路径改回根目录)
       - name: Generate GitHub Metrics
         uses: lowlighter/metrics@latest
         with:
-          # 👇 关键修改：这里换成了我们新加的 METRICS_TOKEN
+          # 必须使用你在 Secrets 里配好的万能钥匙
           token: ${{ secrets.METRICS_TOKEN }}
           
-          # 仍然强制输出到 dist
-          filename: dist/github-stats.svg
+          # 👇👇👇 关键修改：去掉 dist/ 前缀！直接生成在当前目录 👇👇👇
+          filename: github-stats.svg
           
-          # 配置
           user: DITF16
           base: header, repositories
           template: classic
           config_timezone: Asia/Shanghai
-          
-          # 开启 debug 确保我们能看到日志
-          debug: yes
-          verify: no  # 暂时关掉验证，防止误报
           output_action: none
+          verify: no
+          debug: yes
 
-      # 3. 检查文件 (这次应该有了！)
-      - name: Check files
+      # 3. 手动搬运 (我们自己动手，丰衣足食)
+      - name: Move to dist
         run: |
-          ls -l dist/
-          if [ -f "dist/github-stats.svg" ]; then
-            echo "✅ 欧耶！战斗数据生成成功！"
+          echo "正在检查根目录文件..."
+          ls -l github-stats.svg || echo "⚠️ 根目录也没找到文件"
+          
+          if [ -f "github-stats.svg" ]; then
+            mv github-stats.svg dist/
+            echo "✅ 成功！文件已生成并移动到 dist 目录！"
           else
-            echo "❌ 还是没有... 请检查 Token 权限。"
+            echo "❌ 依然失败。请检查 Token 是否包含换行符或空格。"
             exit 1
           fi
 
@@ -63,5 +63,4 @@ jobs:
           target_branch: output
           build_dir: dist
         env:
-          # 推送还是用默认 Token 比较安全
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
