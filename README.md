@@ -66,11 +66,19 @@
 
 <td valign="top" width="45%">
 <h3>📊 // BATTLE_STATS (战斗数据)</h3>
+
 <p align="center">
-<img src="https://github.com/DITF16/DITF16/blob/output/github-contribution-grid-snake.svg" alt="snake"/>
+<img src="https://github.com/DITF16/DITF16/blob/output/github-contribution-grid-snake.svg" alt="snake" />
 </p>
+
 <p align="center">
-    <img src="https://github.com/DITF16/DITF16/blob/output/github-stats.svg" alt="GitHub Stats" />
+<samp>城市建设度 (Commit City):</samp>
+<br>
+<img src="https://github.com/DITF16/DITF16/blob/output/profile-night-rainbow.svg" alt="3D City" width="100%" />
+</p>
+
+<p align="center">
+<img src="https://github-readme-stats-six-flame.vercel.app/api/top-langs/?username=DITF16&layout=compact&theme=tokyonight&hide_border=true&title_color=F75C7E&icon_color=4facfe" alt="Top Langs" />
 </p>
 </td>
 </tr>
