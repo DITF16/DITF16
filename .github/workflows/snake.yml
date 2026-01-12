@@ -2,7 +2,7 @@ name: Generate 3D City & Snake
 
 on:
   schedule:
-    - cron: "0 0 * * *" # 每天运行
+    - cron: "0 0 * * *"
   workflow_dispatch:
 
 jobs:
@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      # 1. 生成贪吃蛇 (你原来的那个，保留它)
+      # 1. 生成贪吃蛇 (这个用 with，没问题)
       - name: Generate Snake
         uses: Platane/snk@v3
         with:
@@ -21,19 +21,19 @@ jobs:
             dist/github-contribution-grid-snake.svg
             dist/github-contribution-grid-snake-dark.svg?palette=github-dark
 
-      # 2. 生成 3D 霓虹城市 (新装备！)
-      # 不需要任何特殊 Token，直接用系统自带的
+      # 2. 生成 3D 霓虹城市 (修正点：改成 env 写法)
       - name: Generate 3D Contribution Profile
         uses: yoshi389111/github-profile-3d-contrib@0.7.1
-        with:
+        env:
+          # 👇 这里的 GITHUB_TOKEN 必须写在 env 下面！
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           USERNAME: ${{ github.repository_owner }}
-          SETTING_JSON: conf/github-profile-3d-contrib.json # 使用默认配置
 
-      # 3. 搬运文件到 dist 目录 (方便统一管理)
+      # 3. 搬运文件
       - name: Move 3D images to dist
         run: |
           mkdir -p dist
-          # 3D插件默认生成在 profile-3d-contrib 文件夹里，我们把它搬出来
+          # 3D插件生成的图片在 profile-3d-contrib 文件夹里，我们要搬出来
           cp -r profile-3d-contrib/* dist/
           echo "✅ 3D 城市生成完毕！"
 
