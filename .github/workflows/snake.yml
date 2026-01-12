@@ -5,8 +5,7 @@ on:
     - cron: "0 0 * * *"  # 每天运行一次
   workflow_dispatch:      # 允许手动运行
 
-permissions: 
-  contents: write
+# ❌ 注意：这里删除了 permissions 代码块，直接使用仓库默认的读写权限
 
 jobs:
   build:
@@ -27,39 +26,32 @@ jobs:
             dist/github-contribution-grid-snake.svg
             dist/github-contribution-grid-snake-dark.svg?palette=github-dark
 
-      # 2. 生成战斗数据 (强力模式)
+      # 2. 生成战斗数据
+      # 因为去掉了权限限制，现在它应该能读取到你的数据了！
       - name: Generate GitHub Metrics
         uses: lowlighter/metrics@latest
         with:
-          # 必填项
           token: ${{ secrets.GITHUB_TOKEN }}
-          
-          # 直接输出到 dist 目录，不搞搬运了
-          filename: dist/github-stats.svg
-          
-          # 基础配置
+          filename: github-stats.svg 
           base: header, repositories
           template: classic
           config_timezone: Asia/Shanghai
-          
-          # 关键配置：不让它自己提交，但强制验证文件完整性
           output_action: none
-          verify: yes
-          debug: yes
 
-      # 3. 检查文件是否存在 (这次应该能看到了)
-      - name: Check files
+      # 3. 搬运文件 + 最终检查
+      - name: Move Metrics to dist
         run: |
-          echo "Listing dist directory:"
-          ls -l dist/
-          if [ ! -f "dist/github-stats.svg" ]; then
-            echo "❌ 依然失败: dist/github-stats.svg 不存在"
-            exit 1
+          # 检查文件是否生成，如果没生成，打印一下当前目录方便调试
+          if [ -f "github-stats.svg" ]; then
+            mv github-stats.svg dist/
+            echo "✅ 成功: 战斗数据已生成并移动！"
           else
-            echo "✅ 成功: 文件已生成！"
+            echo "❌ 失败: github-stats.svg 依然没有生成。"
+            echo "可能是因为网络波动，或者Token权限在Settings里没有正确保存。"
+            exit 1
           fi
 
-      # 4. 推送 dist 目录下的所有文件
+      # 4. 推送文件
       - name: Push to GitHub
         uses: crazy-max/ghaction-github-pages@v3.1.0
         with:
