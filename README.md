@@ -78,7 +78,7 @@
 </p>
 
 <p align="center">
-<img src="https://github-readme-stats-six-flame.vercel.app/api/top-langs/?username=DITF16&layout=compact&theme=tokyonight&hide_border=true&title_color=F75C7E&icon_color=4facfe" alt="Top Langs" />
+<img src="https://raw.githubusercontent.com/DITF16/DITF16/output/language-stats.svg" alt="Top Langs" width="100%" />
 </p>
 </td>
 </tr>
