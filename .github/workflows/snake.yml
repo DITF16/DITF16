@@ -15,10 +15,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      # 1. 创建存放图片的目录
       - name: Create dist directory
         run: mkdir -p dist
 
-      # 1. 生成贪吃蛇
+      # 2. 生成贪吃蛇 (这个通常没问题，直接输出到 dist)
       - name: Generate Snake
         uses: Platane/snk@v3
         with:
@@ -27,31 +28,34 @@ jobs:
             dist/github-contribution-grid-snake.svg
             dist/github-contribution-grid-snake-dark.svg?palette=github-dark
 
-      # 2. 生成战斗数据 (替代原来的下载方案)
-      # 使用 metrics 插件本地计算，不依赖 Vercel
+      # 3. 生成战斗数据 (修改策略：先生成在根目录)
       - name: Generate GitHub Metrics
         uses: lowlighter/metrics@latest
         with:
-          # 你的 GitHub Token (系统自带，无需配置)
           token: ${{ secrets.GITHUB_TOKEN }}
           
-          # 输出文件路径
-          filename: dist/github-stats.svg
+          # ⚠️ 修改点：去掉路径前缀，直接生成在根目录，防止路径错误
+          filename: github-stats.svg
           
-          # 只要基础信息(头部信息+仓库信息)
           base: header, repositories
-          
-          # 主题：使用 dracula (暗色吸血鬼主题，很适合赛博风)
-          # 你也可以换成: night, tokyonight, dark
           theme: tokyonight
-          
-          # 设置时区
           config_timezone: Asia/Shanghai
-          
-          # 关键：告诉插件不要自己提交，只生成文件，让最后一步统一提交
           output_action: none
 
-      # 3. 将 dist 目录下的所有图片(蛇+战斗数据)推送到 output 分支
+      # 4. 关键步骤：把生成的战斗数据搬运到 dist 目录
+      # 顺便检查一下文件到底生成了没，如果没有会打印错误
+      - name: Move Metrics to dist
+        run: |
+          if [ -f "github-stats.svg" ]; then
+            mv github-stats.svg dist/
+            echo "✅ 成功移动 github-stats.svg 到 dist 目录"
+          else
+            echo "❌ 严重错误: github-stats.svg 没有生成！"
+            ls -R  # 列出当前所有文件帮我们找原因
+            exit 1
+          fi
+
+      # 5. 推送 dist 目录下的所有文件
       - name: Push to GitHub
         uses: crazy-max/ghaction-github-pages@v3.1.0
         with:
